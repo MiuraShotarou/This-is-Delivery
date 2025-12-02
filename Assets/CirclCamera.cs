@@ -1,19 +1,32 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 class CircleCamera : MonoBehaviour
 {
     Camera _mainCamera;
     Vector3[] _circlePointArray;
-    Vector3 _center = new (0, -7.43f, 5.33f);
+    Vector3[] _circleRotationArray;
+    Vector3 _center = new (0, -0.26f, 5.33f); //y == -7.43f
     float _radius = 15.29f;
-    int _segments = 360;
+    int _segments = 720;
     int _circlePointIndex = 0;
+    int _CirclePointIndex
+    {
+        get => _circlePointIndex;
+        set {
+            _circlePointIndex = value;
+            if (_circlePointIndex > _segments - 1)
+            {
+                _circlePointIndex = 0;
+            }}
+    }
+    Vector3 _circleRotation;
 
     void Awake()
     {
-        _circlePointArray = GetCirclePoints(_center, _radius, _segments);
         _mainCamera = Camera.main;
+        _circlePointArray = GetCirclePoints(_center, _radius, _segments);
+        _circleRotation = _mainCamera.transform.rotation.eulerAngles;
+        _circleRotationArray = GetCircleRotation(_segments);
     }
 
     void Update()
@@ -23,21 +36,36 @@ class CircleCamera : MonoBehaviour
 
     void RotationCamera()
     {
-        _mainCamera.transform.position = _circlePointArray[_circlePointIndex];
-        _circlePointIndex++;
+        _mainCamera.transform.position = _circlePointArray[_CirclePointIndex];
+        _mainCamera.transform.rotation = Quaternion.Euler(_circleRotationArray[_circlePointIndex]);
+        _CirclePointIndex++;
     }
     
-    public Vector3[] GetCirclePoints(Vector3 center, float radius, int segments) //中点、半径、点同士の間隔
+    Vector3[] GetCirclePoints(Vector3 center, float radius, int segments)
     {
-        var pts = new Vector3[segments + 1]; // 最後を中心の最初と同じにするなら +1
+        Vector3[] posArray = new Vector3[segments];
         for (int i = 0; i < segments; i++)
         {
-            float theta = (2f * Mathf.PI * i) / segments;
-            float x = center.x + Mathf.Cos(theta) * radius;
-            float z = center.z + Mathf.Sin(theta) * radius; // 2Dなら y を使う
-            pts[i] = new Vector3(x, center.y, z);
+            float theta = 2f * Mathf.PI * i / segments; //theta == 円の中心から見た角度ラジアン　最初のラジアンは0
+            float x = center.x + Mathf.Sin(theta) * radius;
+            float z = center.z + Mathf.Cos(theta) * radius;
+            posArray[i] = new Vector3(x, center.y, z);
         }
-        pts[segments] = pts[0]; // 閉ループにする場合
-        return pts;
+        return posArray;
+    }
+
+    Vector3[] GetCircleRotation(int segments)
+    {
+        Vector3[] rotArray = new Vector3[segments];
+        float angle = 180f;
+        float addAngle = 360f / segments;
+        int turningPoint = segments / 2 - 1;
+        for (int i = 0; i < segments; i++)
+        {
+            _circleRotation.y = angle;
+            rotArray[i] = _circleRotation;
+            angle = i == turningPoint? 0 : angle + addAngle;
+        }
+        return rotArray;
     }
 }

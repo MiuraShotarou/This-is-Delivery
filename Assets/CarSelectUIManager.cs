@@ -7,4 +7,5 @@ public class CarSelectUIManager : MonoBehaviour
     {
         SceneManager.LoadScene($"Stage{GameDataManager.Instance.StageIndex}");
     }
+    // string[] 
 }
