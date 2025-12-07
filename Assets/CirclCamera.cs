@@ -5,7 +5,7 @@ class CircleCamera : MonoBehaviour
     Camera _mainCamera;
     Vector3[] _circlePointArray;
     Vector3[] _circleRotationArray;
-    Vector3 _center = new (0, -0.26f, 5.33f); //y == -7.43f
+    Vector3 _center = new (-112f, -0.26f, -52.57f); //y == -7.43f
     float _radius = 15.29f;
     int _segments = 720;
     int _circlePointIndex = 0;
