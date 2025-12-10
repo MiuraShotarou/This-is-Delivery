@@ -1,9 +1,11 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 public class CarSelectUIManager : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI _carNameText;
+    [SerializeField] Slider[] _statusSliderArray;
     [SerializeField] GameObject[] _carObjArray;
     int _CarIndex
     {
@@ -21,6 +23,8 @@ public class CarSelectUIManager : MonoBehaviour
             }
         }
     }
+    // ただのキャッシュ
+    Car _currentCar;
     void Awake()
     {
         _maxCarIndex = _carObjArray.Length - 1;
@@ -32,6 +36,15 @@ public class CarSelectUIManager : MonoBehaviour
         _CarIndex += isLeftArrow? -1 : 1;
         _carObjArray[_CarIndex].SetActive(true);
         _carNameText.text = _carObjArray[_CarIndex].name;
+        _currentCar = GameDataManager.Instance.CarArray[_CarIndex];
+        ShowStatusUI();
+    }
+    void ShowStatusUI()
+    {
+        _statusSliderArray[0].value = _currentCar._speed;
+        _statusSliderArray[1].value = _currentCar._weight;
+        _statusSliderArray[2].value = _currentCar._curve;
+        _statusSliderArray[3].value = _currentCar._maxPizzaCount;
     }
     public void OnRaceStartButton()
     {
