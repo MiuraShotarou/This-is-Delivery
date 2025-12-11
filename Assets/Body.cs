@@ -2,39 +2,57 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Body : MonoBehaviour
 {
-    [SerializeField] private int _weight;
-    public int Weight { set { _weight = value; } }
+    [SerializeField] private float _weight;
+    public float Weight { get => _weight; set => _weight = value; }
     Rigidbody _rigidbody;
+    Timer _timer;
+    Engine _engine;
+    CarState _carState;
+    // public Engine Engine {set => _engine = value; }
+    public CarState CarState {set => _carState = value; }
     void Awake()
     {
+        _timer = GetComponent<Timer>();
+        _engine = GetComponent<Engine>();
         _rigidbody = GetComponent<Rigidbody>();
-        _forcePower = 100f;
-        _resetTimer = 0f;
-        _dontAddForceTimePoint = 1f;
     }
+    /// <summary>　ステートマシン　</summary>
     void Update()
     {
-        _resetTimer += Time.deltaTime;
+        switch (_carState)
+        {
+            case CarState.Stop: //
+                break;
+            case CarState.Normal:
+                break;
+            case CarState.DriftLow:
+                break;            
+            case CarState.DriftHigh:
+                break;
+            case CarState.Boost:
+                break;
+            case CarState.BoostAttenuation:
+                BoostAttenuation();
+                break;
+        }
     }
     void OnCollisionEnter(Collision collision)
     {
         // 車同士が衝突するとお互いに反発し合う
         if (collision.gameObject.CompareTag("Cart"))
         {
-            if (_resetTimer > _dontAddForceTimePoint)
+            if (_timer._CanAddForce)
             {
-                AddForce();
+                AddForce(collision.gameObject.GetComponent<Body>());
+                _timer.InitAddForceParam();
             }
         }
     }
-    void AddForce()
+    void AddForce(Body body)
     {
-        Debug.Log("AddingForce");
         Vector3 reverse = -_rigidbody.velocity;
-        _rigidbody.AddForce(reverse * _forcePower, ForceMode.Impulse);
-        _resetTimer = 0;
+        float forcePower = body.Weight - Weight + GameDataManager.Instance.CarStateMultiplier[(int)_carState];
+        _rigidbody.AddForce(reverse * forcePower, ForceMode.Impulse);
     }
-    float _forcePower;
-    float _resetTimer;
-    float _dontAddForceTimePoint;
+    void BoostAttenuation() => _engine.CurrentSpeed -= 
 }
